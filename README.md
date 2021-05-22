@@ -1,7 +1,7 @@
 # Backend with golang level 1 course project
 
 ## About project
-This repo contains realisation of a simple **url shortener**.
+This repo contains realisation of a simple **url shortener**.
 
 **Still in progress!**
 
