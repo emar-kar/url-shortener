@@ -1,39 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="web/images/icon.png">
-    <title>404</title>
-    <link rel="stylesheet" href="web/css/style.css">
-</head>
-<body>
-   <div class="container">
-        <div class="header">
-            <a href="index.html">
-                <img class="logo" src="web/images/logo.png" alt="logo">
-            </a>
-            <ul class="menu">
-                <li><a href="index.html">MAIN</a></li>
-            </ul>
-        </div>
-
-            <div class="content">
-                <div class="page_name">
-                   <h1>404 error</h1>
-                </div>
-                <div class="box">
-                    <h2>
-                        <img class="not_found" src="../images/404.png" alt="404"><br>
-                        We have looked through the universe, <br>
-                        but still cannot find the page you are looking for :( <br>
-                        Please, try again.
-                    </h2>
-                </div>
-            </div>   
-
-        <div class="footer">
-            <p>All rights reserved &copy; <a href="https://t.me/l_emarkar" target="_blank">E-K</a></p>
-        </div>  
-    </div>      
-</body>
-</html>
+{{ template "header.html" .}}
+<div class="content">
+    <div class="box">
+        <h2>
+            <img class="not_found" src="web/images/404.png" alt="404"><br>
+            We have looked through the universe, <br>
+            but still cannot find the page you are looking for :( <br>
+            Please, try again.
+        </h2>
+    </div>
+</div>   
+{{ template "footer.html" .}}
