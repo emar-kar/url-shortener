@@ -3,14 +3,16 @@
     <div class="desc">
         Welcome, to a simple url-shortener.
     </div>
-    <div class="option">
-        Your link: <br>
-        <input type="text" name="userLink"> <br>
-        <form action="/link/generate" method="post">
+    <div class="link">
+        <h2>Your link:</h2> <br>
+        <input type="text" name="userLink">
+        <h4>Expires on: </h4>
+        <input type="date" name="expirationDate">
+        <form class="gen" action="/generate" method="post">
             <input type="submit" value="Generate short link">
         </form>
-        <form action="/link/details" method="get">
-            <input type="submit" value="Get details on a short link">
+        <form class="det" action="/details" method="get">
+            <input type="submit" value="Get details of a short link">
         </form>
     </div>
 </div>   
