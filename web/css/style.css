@@ -114,21 +114,20 @@ body {
     float: left;
     text-align: center;
     margin-left: 5%;
-    width: 45%;
+    width: 40%;
 }
 
 .link .det {
     float: right;
     text-align: center;
     margin-right: 5%;
-    width: 45%;
+    width: 40%;
 }
 
 .link input[type=submit] {
     font-size: 35px;
     height: 35px;
     margin-top: 20px;
-    width: 90%;
 }
 
 .box h2 {

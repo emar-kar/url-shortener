@@ -11,11 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/emar-kar/url-shortener/cmd/url-shortener/server"
-	"github.com/emar-kar/url-shortener/pkg/handler"
+	"github.com/emar-kar/urlshortener/cmd/server"
+	"github.com/emar-kar/urlshortener/internal/redis"
+	"github.com/emar-kar/urlshortener/pkg/handler"
+	"github.com/emar-kar/urlshortener/pkg/service"
 )
 
-// TODO: add config?
 func main() {
 	srv := new(server.Server)
 
@@ -23,7 +24,14 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer close(done)
 
-	handlers := handler.NewHandler()
+	rdb := redis.NewDB()
+	if _, err := rdb.Client.Ping(context.Background()).Result(); err != nil {
+		log.Fatalf("cannot logging to redis: %s", err)
+	}
+	defer rdb.Client.Close()
+
+	services := service.NewService(rdb)
+	handlers := handler.NewHandler(services)
 
 	go func() {
 		err := srv.Run(

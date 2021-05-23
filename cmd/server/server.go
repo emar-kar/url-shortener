@@ -15,7 +15,6 @@ type Server struct {
 func (s *Server) Run(addr, port string, handler http.Handler) error {
 	log.Println("server starting")
 	s.httpServer = &http.Server{
-		// Addr: ":" + port,
 		Addr:         fmt.Sprintf("%s:%s", addr, port),
 		Handler:      handler,
 		ReadTimeout:  10 * time.Second,

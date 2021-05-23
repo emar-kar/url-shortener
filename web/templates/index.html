@@ -4,15 +4,13 @@
         Welcome, to a simple url-shortener.
     </div>
     <div class="link">
-        <h2>Your link:</h2> <br>
-        <input type="text" name="userLink">
-        <h4>Expires on: </h4>
-        <input type="date" name="expirationDate">
-        <form class="gen" action="/generate" method="post">
-            <input type="submit" value="Generate short link">
-        </form>
-        <form class="det" action="/details" method="get">
-            <input type="submit" value="Get details of a short link">
+        <form>
+            <h2>{{ .warning }}Enter your link:</h2> <br>
+            <input type="text" name="userLink">
+            <h4>Expires on: </h4>
+            <input type="date" name="expirationDate">
+            <input class="gen" type="submit" value="Generate short link" formaction="/generate" formmethod="POST">
+            <input class="det" type="submit" value="Get details of a short link" formaction="/statistics" formmethod="GET">
         </form>
     </div>
 </div>   
