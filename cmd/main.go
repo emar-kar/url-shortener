@@ -15,9 +15,16 @@ import (
 	"github.com/emar-kar/urlshortener/internal/redis"
 	"github.com/emar-kar/urlshortener/pkg/handler"
 	"github.com/emar-kar/urlshortener/pkg/service"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
+	log.SetOutput(&lumberjack.Logger{
+		Filename:   "../log/report.log",
+		MaxBackups: 2,
+		MaxAge:     1, //days
+	})
+
 	srv := new(server.Server)
 
 	done := make(chan os.Signal, 1)
