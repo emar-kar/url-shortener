@@ -38,12 +38,34 @@ func (h *Handler) generateHandler(c *gin.Context) {
 	exp := c.PostForm("expirationDate")
 
 	var dur time.Duration
-	// TODO: handle errors
+	var err error
 	if exp == "" {
-		dur, _ = time.ParseDuration("24h")
+		dur, err = time.ParseDuration("24h")
+		if err != nil {
+			log.Println(err)
+			c.HTML(http.StatusInternalServerError, "500.html", gin.H{
+				"title": "500 error",
+			})
+			return
+		}
 	} else {
-		parsedTime, _ := time.Parse(TimeLayout, exp)
+		parsedTime, err := time.Parse(TimeLayout, exp)
+		if err != nil {
+			log.Println(err)
+			c.HTML(http.StatusInternalServerError, "500.html", gin.H{
+				"title": "500 error",
+			})
+			return
+		}
 		dur = time.Until(parsedTime)
+	}
+
+	if dur < 0 {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"title":   "Main",
+			"warning": "Expiration time should be in the future! ",
+		})
+		return
 	}
 
 	shortURL, err := h.services.GenerateShortURL(c.Request.Host)
@@ -74,10 +96,9 @@ func (h *Handler) generateHandler(c *gin.Context) {
 }
 
 func (h *Handler) statisticsHandler(c *gin.Context) {
-	// TODO: fix expiration date not being negative
 	url := c.Request.FormValue("userLink")
 	if url == "" {
-		c.HTML(http.StatusOK, "index.html", gin.H{
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
 			"title":   "Main",
 			"warning": "URL was not set! ",
 		})
