@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	timeLayout = "2006-01-02"
+	TimeLayout = "2006-01-02"
 )
 
 func (h *Handler) mainHandler(c *gin.Context) {
@@ -38,10 +38,11 @@ func (h *Handler) generateHandler(c *gin.Context) {
 	exp := c.PostForm("expirationDate")
 
 	var dur time.Duration
+	// TODO: handle errors
 	if exp == "" {
 		dur, _ = time.ParseDuration("24h")
 	} else {
-		parsedTime, _ := time.Parse(timeLayout, exp)
+		parsedTime, _ := time.Parse(TimeLayout, exp)
 		dur = time.Until(parsedTime)
 	}
 
@@ -51,6 +52,7 @@ func (h *Handler) generateHandler(c *gin.Context) {
 		c.HTML(http.StatusInternalServerError, "500.html", gin.H{
 			"title": "500 error",
 		})
+		return
 	}
 
 	link := &urlshortener.Link{FullForm: url, ShortForm: shortURL, Expiration: dur}
@@ -60,6 +62,7 @@ func (h *Handler) generateHandler(c *gin.Context) {
 		c.HTML(http.StatusInternalServerError, "500.html", gin.H{
 			"title": "500 error",
 		})
+		return
 	}
 
 	c.HTML(http.StatusCreated, "generator.html", gin.H{
@@ -71,6 +74,7 @@ func (h *Handler) generateHandler(c *gin.Context) {
 }
 
 func (h *Handler) statisticsHandler(c *gin.Context) {
+	// TODO: fix expiration date not being negative
 	url := c.Request.FormValue("userLink")
 	if url == "" {
 		c.HTML(http.StatusOK, "index.html", gin.H{
@@ -111,6 +115,6 @@ func (h *Handler) redirectHandler(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(303, data.FullForm)
+	c.Redirect(http.StatusPermanentRedirect, data.FullForm)
 	c.Abort()
 }
