@@ -5,13 +5,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/emar-kar/url-shortener/api"
+	"github.com/emar-kar/urlshortener/pkg/service"
 )
 
-type Handler struct{}
+// TODO: add custom logger
 
-func NewHandler() *Handler {
-	return nil
+type Handler struct {
+	services *service.Service
+}
+
+func NewHandler(s *service.Service) *Handler {
+	return &Handler{services: s}
 }
 
 func (h *Handler) InitRoutes(ginMode string) *gin.Engine {
@@ -20,22 +24,32 @@ func (h *Handler) InitRoutes(ginMode string) *gin.Engine {
 	}
 
 	router := gin.New()
+	router.Use(gin.Logger())
+
+	router.Use(gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
+		if _, ok := recovered.(string); ok {
+			c.HTML(http.StatusInternalServerError, "500.html", gin.H{
+				"title": "500 error",
+			})
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}))
+
 	router.StaticFS("web", http.Dir("web"))
 	router.LoadHTMLGlob("web/*/*.html")
 
-	router.GET("", h.mainHandler)
-	router.GET("/generator", h.generatorHandler)
-	router.GET("/statistic", h.statisticsHandler)
+	router.NoRoute(h.notFound)
 
-	appApi := router.Group("api")
-	{
-		appApi.GET("/graph", api.GetStatistics)
-		appApi.POST("/generate", api.Generate)
-	}
+	router.GET("/", h.mainHandler)
+	router.GET("/:url", h.redirectHandler)
+	router.GET("/statistics", h.statisticsHandler)
+	router.POST("/generate", h.generateHandler)
+
+	// appApi := router.Group("api")
+	// {
+	// 	appApi.GET("/statistics", api.GetStatistics)
+	// 	appApi.POST("/generate", api.Generate)
+	// }
 
 	return router
-}
-
-func (h *Handler) mainHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", nil)
 }

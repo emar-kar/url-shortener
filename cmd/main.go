@@ -11,19 +11,34 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/emar-kar/url-shortener/cmd/url-shortener/server"
-	"github.com/emar-kar/url-shortener/pkg/handler"
+	"github.com/emar-kar/urlshortener/cmd/server"
+	"github.com/emar-kar/urlshortener/internal/redis"
+	"github.com/emar-kar/urlshortener/pkg/handler"
+	"github.com/emar-kar/urlshortener/pkg/service"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// TODO: add config?
 func main() {
+	log.SetOutput(&lumberjack.Logger{
+		Filename:   "../log/report.log",
+		MaxBackups: 2,
+		MaxAge:     1, //days
+	})
+
 	srv := new(server.Server)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer close(done)
 
-	handlers := handler.NewHandler()
+	rdb := redis.NewDB()
+	if _, err := rdb.Client.Ping(context.Background()).Result(); err != nil {
+		log.Fatalf("cannot logging to redis: %s", err)
+	}
+	defer rdb.Client.Close()
+
+	services := service.NewService(rdb)
+	handlers := handler.NewHandler(services)
 
 	go func() {
 		err := srv.Run(

@@ -49,12 +49,10 @@
 body {
     background-position: center;
     background-size: cover;
-    /* background-attachment: fixed; */
     font-family: 'Montserrat', sans-serif;
 }
 
 .container {
-    width: 100%;
     margin: 0 auto;
     height: calc(100vh - 230px);
 }
@@ -69,7 +67,6 @@ body {
 
 .content {
     padding-top: 5%;
-    width: 100%;
     height: calc(100vh - 290px);
 }
 
@@ -79,37 +76,58 @@ body {
     font-size: 50px;
     font-weight: 400;
     color:rgba(0, 0, 0, 1);
-    width: 100%;
 }
 
-.option {
-    padding-top: 2.5%;
-    font-size: 50px;
-    margin-top: 5px;
+.link {
+    margin-top: 15px;
     text-align: center;
-    height: auto;
 }
 
-.option input[type=text] {
-    margin-top: 5px;
+.link h2 {
+    font-size: 50px;
+}
+
+.link input[type=text] {
     margin-left: 5%;
-    margin-right: 5%;
-    width: 90%;
-    font-size: 35px;
-}
-
-.option form {
-    margin-top: 5px;
     float: left;
+    width: 55%;
+    font-size: 35px;
+    height: 45px;
+    margin-right: 3%;
+}
+
+.link h4 {
+    float: left;
+    font-size: 35px;
+    margin-right: 2%;
+    width: 15%;
+}
+
+.link input[type=date] {
+    float: left;
+    width: 15%;
+    font-size: 35px;
+    height: 45px;
+}
+
+.link .gen {
+    float: left;
+    text-align: center;
     margin-left: 5%;
+    width: 40%;
+}
+
+.link .det {
+    float: right;
+    text-align: center;
     margin-right: 5%;
     width: 40%;
-    font-size: 35px;
 }
 
-.option form input[type=submit] {
-    font-size: 50px;
-    width: 100%;
+.link input[type=submit] {
+    font-size: 35px;
+    height: 35px;
+    margin-top: 20px;
 }
 
 .box h2 {
@@ -117,7 +135,6 @@ body {
     font-size: 50px;
     font-weight: 400;
     color:rgba(0, 0, 0, 1);
-    width: 100%;
 }
 
 .box h2 .gears {
