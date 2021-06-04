@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"log"
+	"errors"
 	"net/http"
 	"time"
 
@@ -34,27 +34,29 @@ func (gr *GenRequest) Time() (time.Duration, error) {
 func (h *Handler) generate(c *gin.Context) {
 	var genRequest GenRequest
 	if err := c.BindJSON(&genRequest); err != nil {
-		log.Println(err)
-		c.AbortWithError(http.StatusBadRequest, err)
+		errorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
 	if genRequest.Link == "" {
-		c.AbortWithStatus(http.StatusBadRequest)
+		errorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
 		return
 	}
 
 	shortURL, err := h.services.GenerateShortURL(c.Request.Host)
 	if err != nil {
-		log.Println(err)
-		c.AbortWithError(http.StatusInternalServerError, err)
+		errorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	dur, err := genRequest.Time()
 	if err != nil {
-		log.Println(err)
-		c.AbortWithError(http.StatusInternalServerError, err)
+		errorResponse(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	if dur < 0 {
+		errorResponse(c, http.StatusBadRequest, errors.New("expiration time is in the past"))
 		return
 	}
 
@@ -65,8 +67,7 @@ func (h *Handler) generate(c *gin.Context) {
 	}
 
 	if err := h.services.Set(link); err != nil {
-		log.Println(err)
-		c.AbortWithError(http.StatusInternalServerError, err)
+		errorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 
