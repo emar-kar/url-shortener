@@ -3,8 +3,8 @@ package urlshortener
 import "time"
 
 type Link struct {
-	FullForm   string
-	ShortForm  string
-	Expiration time.Duration
-	Redirects  uint64
+	FullForm   string        `json:"full_url"`
+	ShortForm  string        `json:"short_url"`
+	Expiration time.Duration `json:"expiration_time"`
+	Redirects  uint64        `json:"redirects"`
 }
