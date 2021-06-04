@@ -62,7 +62,7 @@ func (h *Handler) generateHandler(c *gin.Context) {
 		})
 	}
 
-	c.HTML(http.StatusOK, "generator.html", gin.H{
+	c.HTML(http.StatusCreated, "generator.html", gin.H{
 		"title":      "Generated link",
 		"longLink":   url,
 		"shortLink":  shortURL,
@@ -111,7 +111,6 @@ func (h *Handler) redirectHandler(c *gin.Context) {
 		return
 	}
 
-	// TODO: fix move then 1 redirect
 	c.Redirect(303, data.FullForm)
-	// c.Abort()
+	c.Abort()
 }
