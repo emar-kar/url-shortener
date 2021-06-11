@@ -21,7 +21,7 @@ import (
 
 func main() {
 	log.SetOutput(&lumberjack.Logger{
-		Filename:   "log/report.log",
+		Filename:   "logs/report.log",
 		MaxBackups: 2,
 		MaxAge:     1, //days
 	})
