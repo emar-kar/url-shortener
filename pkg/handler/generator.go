@@ -22,13 +22,12 @@ func (gr *GenRequest) Time() (time.Duration, error) {
 			return 0, err
 		}
 		return duration, nil
-	} else {
-		parsedTime, err := time.Parse(TimeLayout, gr.ExpTime)
-		if err != nil {
-			return 0, err
-		}
-		return time.Until(parsedTime), nil
 	}
+	parsedTime, err := time.Parse(TimeLayout, gr.ExpTime)
+	if err != nil {
+		return 0, err
+	}
+	return time.Until(parsedTime), nil
 }
 
 func (h *Handler) generate(c *gin.Context) {

@@ -38,6 +38,7 @@ func (h *Handler) generateHandler(c *gin.Context) {
 	exp := c.PostForm("expirationDate")
 
 	var dur time.Duration
+	var parsedTime time.Time
 	var err error
 	if exp == "" {
 		dur, err = time.ParseDuration("24h")
@@ -49,7 +50,7 @@ func (h *Handler) generateHandler(c *gin.Context) {
 			return
 		}
 	} else {
-		parsedTime, err := time.Parse(TimeLayout, exp)
+		parsedTime, err = time.Parse(TimeLayout, exp)
 		if err != nil {
 			log.Println(err)
 			c.HTML(http.StatusInternalServerError, "500.html", gin.H{
