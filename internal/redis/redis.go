@@ -56,11 +56,11 @@ func (db *DB) Get(shortURL string) (*urlshortener.Link, error) {
 
 func (db *DB) Set(link *urlshortener.Link) error {
 	ctx := context.Background()
-	if err := db.Client.Set(ctx, link.ShortForm+":short", link.FullForm+"full", link.Expiration).Err(); err != nil {
+	if err := db.Client.Set(ctx, link.ShortForm+":short", link.FullForm+":full", link.Expiration).Err(); err != nil {
 		return err
 	}
 
-	if err := db.Client.Set(ctx, link.FullForm+"full", 0, link.Expiration).Err(); err != nil {
+	if err := db.Client.Set(ctx, link.FullForm+":full", 0, link.Expiration).Err(); err != nil {
 		return err
 	}
 
