@@ -43,7 +43,7 @@ func main() {
 
 	go func() {
 		err := srv.Run(
-			"localhost",
+			"",
 			"8080",
 			handlers.InitRoutes(""),
 		)
