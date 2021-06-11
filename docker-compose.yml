@@ -1,0 +1,10 @@
+version: "3"
+services:
+    redis:
+        image: redis
+    url-shortener:
+        image: url-shortener:test
+        depends_on:
+            - redis
+        ports:
+            - 8080:8080
