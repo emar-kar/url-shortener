@@ -11,28 +11,6 @@ import (
 	"github.com/emar-kar/urlshortener"
 )
 
-type LinkType string
-
-func (lt *LinkType) String() string {
-	return string(*lt)
-}
-
-func (lt *LinkType) TrimShort() string {
-	return strings.TrimSuffix(lt.String(), ":short")
-}
-
-func (lt *LinkType) TrimFull() string {
-	return strings.TrimSuffix(lt.String(), ":full")
-}
-
-func (lt *LinkType) Short() string {
-	return lt.String() + ":short"
-}
-
-func (lt *LinkType) Full() string {
-	return lt.String() + ":full"
-}
-
 // Redis keys:
 // url:short
 // url:full
@@ -54,16 +32,14 @@ func NewDB() *DB {
 func (db *DB) Get(shortURL string) (*urlshortener.Link, error) {
 	link := &urlshortener.Link{ShortForm: shortURL}
 
-	redisShortLink := LinkType(shortURL)
 	ctx := context.Background()
-	redisFullLink, err := db.Client.Get(ctx, redisShortLink.Short()).Result()
+	redisFullLink, err := db.Client.Get(ctx, shortURL+":short").Result()
 	if err != nil {
 		return nil, fmt.Errorf("cannot get %s full URL: %w", shortURL, err)
 	}
-	fullLink := LinkType(redisFullLink)
-	link.FullForm = fullLink.TrimFull()
+	link.FullForm = strings.TrimSuffix(redisFullLink, ":full")
 
-	exp, err := db.Client.TTL(ctx, redisShortLink.Short()).Result()
+	exp, err := db.Client.TTL(ctx, shortURL+":short").Result()
 	if err != nil {
 		return nil, fmt.Errorf("cannot get %s TTL: %w", shortURL, err)
 	}
@@ -71,7 +47,7 @@ func (db *DB) Get(shortURL string) (*urlshortener.Link, error) {
 
 	redirects, err := db.Client.Get(ctx, redisFullLink).Uint64()
 	if err != nil {
-		return nil, fmt.Errorf("cannot get %s redirects: %w", fullLink, err)
+		return nil, fmt.Errorf("cannot get %s redirects: %w", link.FullForm, err)
 	}
 	link.Redirects = redirects
 
@@ -80,42 +56,38 @@ func (db *DB) Get(shortURL string) (*urlshortener.Link, error) {
 
 func (db *DB) Set(link *urlshortener.Link) error {
 	ctx := context.Background()
-	redisShortLink := LinkType(link.ShortForm)
-	redisFullLink := LinkType(link.FullForm)
-	if err := db.Client.Set(ctx, redisShortLink.Short(), redisFullLink.Full(), link.Expiration).Err(); err != nil {
+	if err := db.Client.Set(ctx, link.ShortForm+":short", link.FullForm+"full", link.Expiration).Err(); err != nil {
 		return err
 	}
 
-	if err := db.Client.Set(ctx, redisFullLink.Full(), 0, link.Expiration).Err(); err != nil {
+	if err := db.Client.Set(ctx, link.FullForm+"full", 0, link.Expiration).Err(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (db *DB) Exist(shortURL string) bool {
-	redisShortLink := LinkType(shortURL)
-	if _, err := db.Client.Get(context.Background(), redisShortLink.Short()).Result(); errors.Is(err, redis.Nil) {
+func (db *DB) Exist(link string) bool {
+	if _, err := db.Client.Get(context.Background(), link+":short").Result(); errors.Is(err, redis.Nil) {
 		return false
 	}
 	return true
 }
 
-func (db *DB) Redirect(fullURL string) error {
-	redisFullLink := LinkType(fullURL)
+func (db *DB) Redirect(link string) error {
 	ctx := context.Background()
-	red, err := db.Client.Get(ctx, redisFullLink.Full()).Uint64()
+	red, err := db.Client.Get(ctx, link+":full").Uint64()
 	if err != nil {
 		return err
 	}
 
-	exp, err := db.Client.TTL(ctx, redisFullLink.Full()).Result()
+	exp, err := db.Client.TTL(ctx, link+":full").Result()
 	if err != nil {
 		return err
 	}
 
 	red++
-	if err := db.Client.Set(ctx, redisFullLink.Full(), red, exp).Err(); err != nil {
+	if err := db.Client.Set(ctx, link+":full", red, exp).Err(); err != nil {
 		return err
 	}
 
