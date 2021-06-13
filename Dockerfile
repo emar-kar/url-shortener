@@ -6,7 +6,8 @@ RUN go mod tidy
 RUN go build -o ./bin/main -v ./cmd/main.go
 
 FROM alpine:latest
-RUN apk --update add redis 
-COPY --from=builder /url-shortener /url-shortener
+RUN apk --update add redis
+COPY --from=builder /url-shortener/bin /url-shortener/bin
+COPY --from=builder /url-shortener/web /url-shortener/web
 WORKDIR /url-shortener
 CMD ["./bin/main"]
