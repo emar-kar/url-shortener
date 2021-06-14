@@ -43,9 +43,8 @@ func main() {
 
 	go func() {
 		err := srv.Run(
-			"",
 			"8080",
-			handlers.InitRoutes(""),
+			handlers.InitRoutes("release"),
 		)
 		if errors.Is(err, http.ErrServerClosed) {
 			log.Println("server closed")
