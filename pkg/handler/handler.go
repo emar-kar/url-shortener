@@ -45,8 +45,8 @@ func (h *Handler) InitRoutes(ginMode string) *gin.Engine {
 
 	appAPI := router.Group("api")
 	{
-		appAPI.GET("/statistics", h.getStatistics)
 		appAPI.POST("/generate", h.generate)
+		appAPI.GET("/statistics", h.getStatistics)
 	}
 
 	return router
