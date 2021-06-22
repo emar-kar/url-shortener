@@ -19,13 +19,12 @@ import (
 )
 
 func main() {
+	// Set log rotation and redirect log messages to file.
 	log.SetOutput(&lumberjack.Logger{
-		Filename:   "logs/report.log",
+		Filename:   "./logs/report.log",
 		MaxBackups: 2,
 		MaxAge:     1, //days
 	})
-
-	srv := new(server.Server)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
