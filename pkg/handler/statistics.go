@@ -25,7 +25,7 @@ func (h *Handler) getStatistics(c *gin.Context) {
 		return
 	}
 
-	data, err := h.services.Get(statRequest.Link)
+	data, err := h.services.GetLink(statRequest.Link)
 	if err != nil {
 		errorResponse(c, http.StatusInternalServerError, err)
 		return

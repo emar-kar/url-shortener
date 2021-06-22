@@ -50,10 +50,10 @@ func main() {
 		log.Println("server starting")
 
 		if err := srv.ListenAndServe(); err != nil {
-		if errors.Is(err, http.ErrServerClosed) {
-			log.Println("server closed")
-			return
-		}
+			if errors.Is(err, http.ErrServerClosed) {
+				log.Println("server closed")
+				return
+			}
 			log.Printf("server start failure: %s", err)
 			done <- os.Interrupt
 		}

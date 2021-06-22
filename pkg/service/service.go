@@ -8,20 +8,20 @@ import (
 	"github.com/emar-kar/urlshortener"
 )
 
-type Database interface {
-	Set(*urlshortener.Link) error
-	Get(string) (*urlshortener.Link, error)
-	Exist(string) bool
+type LinkManager interface {
+	SetLink(*urlshortener.Link) error
+	GetLink(string) (*urlshortener.Link, error)
+	LinkExists(string) bool
 	Redirect(string) error
 }
 
 type Service struct {
-	Database
+	LinkManager
 }
 
-func NewService(db Database) *Service {
+func NewService(db LinkManager) *Service {
 	return &Service{
-		Database: db,
+		LinkManager: db,
 	}
 }
 
@@ -32,7 +32,7 @@ func (s *Service) GenerateShortURL(host string) (string, error) {
 			return "", err
 		}
 		shortURL := fmt.Sprintf("%s/%s", host, hash)
-		if !s.Database.Exist(shortURL) {
+		if !s.LinkManager.LinkExists(shortURL) {
 			return shortURL, nil
 		}
 	}
