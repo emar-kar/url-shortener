@@ -33,29 +33,29 @@ func (gr *GenRequest) Time() (time.Duration, error) {
 func (h *Handler) generate(c *gin.Context) {
 	var genRequest GenRequest
 	if err := c.BindJSON(&genRequest); err != nil {
-		errorResponse(c, http.StatusBadRequest, err)
+		ErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
 	if genRequest.Link == "" {
-		errorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
+		ErrorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
 		return
 	}
 
 	shortURL, err := h.services.GenerateShortURL(c.Request.Host)
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	dur, err := genRequest.Time()
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	if dur < 0 {
-		errorResponse(c, http.StatusBadRequest, errors.New("expiration time is in the past"))
+		ErrorResponse(c, http.StatusBadRequest, errors.New("expiration time is in the past"))
 		return
 	}
 
@@ -65,8 +65,8 @@ func (h *Handler) generate(c *gin.Context) {
 		Expiration: dur,
 	}
 
-	if err := h.services.Set(link); err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+	if err := h.services.SetLink(link); err != nil {
+		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 

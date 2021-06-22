@@ -13,21 +13,20 @@ type StatRequest struct {
 }
 
 func (h *Handler) getStatistics(c *gin.Context) {
-	log.Println(c.Request)
 	var statRequest StatRequest
 	if err := c.BindJSON(&statRequest); err != nil {
-		errorResponse(c, http.StatusBadRequest, err)
+		ErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
 	if statRequest.Link == "" {
-		errorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
+		ErrorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
 		return
 	}
 
 	data, err := h.services.GetLink(statRequest.Link)
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 

@@ -10,7 +10,6 @@ type Response struct {
 	Error string `json:"error"`
 }
 
-func errorResponse(c *gin.Context, status int, err error) {
-	log.Println(err)
+func ErrorResponse(c *gin.Context, status int, err error) {
 	c.AbortWithStatusJSON(status, Response{Error: err.Error()})
 }
