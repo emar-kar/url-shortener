@@ -13,8 +13,7 @@ import (
 
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/emar-kar/urlshortener/cmd/server"
-	"github.com/emar-kar/urlshortener/internal/redis"
+	"github.com/emar-kar/urlshortener/pkg/database"
 	"github.com/emar-kar/urlshortener/pkg/handler"
 	"github.com/emar-kar/urlshortener/pkg/service"
 )
@@ -32,7 +31,7 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer close(done)
 
-	rdb := redis.NewDB()
+	rdb := database.NewDB()
 	if _, err := rdb.Client.Ping(context.Background()).Result(); err != nil {
 		log.Fatalf("cannot logging to redis: %s", err)
 	}
@@ -58,7 +57,6 @@ func main() {
 		}
 			log.Printf("server start failure: %s", err)
 			done <- os.Interrupt
-
 		}
 	}()
 
