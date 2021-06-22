@@ -52,7 +52,7 @@ API was tested with *Postman*, you can copy all further examples and test them y
     }
     ```
 
-    Expiration can be set in a template: **YYYY-MM-DD**. In case if expiration is ommited or set as an empty string it will be default 24 hours.
+    Expiration can be set with a template: **YYYY-MM-DD**. In case if expiration is ommited or set as an empty string it will be default 24 hours.
 
     Response for the request is gonna be with the status code *201*:
 
@@ -101,7 +101,7 @@ API was tested with *Postman*, you can copy all further examples and test them y
 
     * 500 - returns if there is a problem with data processing or database interaction. 
 
-    Error return a json-object with error message, which can describe a problem more clearly:
+    Error returns a json-object with error message, which can describe a problem more clearly:
 
     Request:
     ```json
