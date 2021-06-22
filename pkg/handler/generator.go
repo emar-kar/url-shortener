@@ -10,11 +10,14 @@ import (
 	"github.com/emar-kar/urlshortener"
 )
 
+// GenRequest represents structure of the API request json object for link generation.
 type GenRequest struct {
 	Link    string `json:"link"`
 	ExpTime string `json:"expiration_time"`
 }
 
+// Time converts expiration time from the json request
+// to golang time.Duration.
 func (gr *GenRequest) Time() (time.Duration, error) {
 	if gr.ExpTime == "" {
 		duration, err := time.ParseDuration("24h")
@@ -30,7 +33,9 @@ func (gr *GenRequest) Time() (time.Duration, error) {
 	return time.Until(parsedTime), nil
 }
 
-func (h *Handler) generate(c *gin.Context) {
+// generateLink wraps API request handler.
+// Generates short URL and returns it as a link json object.
+func (h *Handler) generateLink(c *gin.Context) {
 	var genRequest GenRequest
 	if err := c.BindJSON(&genRequest); err != nil {
 		ErrorResponse(c, http.StatusBadRequest, err)
