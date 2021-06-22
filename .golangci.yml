@@ -55,9 +55,6 @@ linters-settings:
   goimports:
     local-prefixes: emarkar/gocsv-query
 
-  golint:
-    min-confidence: 0.8
-
   govet:
     check-shadowing: true
     enable-all: true
@@ -101,7 +98,6 @@ linters:
     - godox
     - gofmt
     - goimports
-    - golint
     - govet
     - ifshort
     - lll
