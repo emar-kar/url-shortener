@@ -41,18 +41,24 @@ func main() {
 	services := service.NewService(rdb)
 	handlers := handler.NewHandler(services)
 
+	srv := &http.Server{
+		Addr:         ":8080",
+		Handler:      handlers.InitRoutes("release"),
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
 	go func() {
-		err := srv.Run(
-			"8080",
-			handlers.InitRoutes("release"),
-		)
+		log.Println("server starting")
+
+		if err := srv.ListenAndServe(); err != nil {
 		if errors.Is(err, http.ErrServerClosed) {
 			log.Println("server closed")
 			return
 		}
-		if err != nil {
 			log.Printf("server start failure: %s", err)
 			done <- os.Interrupt
+
 		}
 	}()
 
@@ -63,7 +69,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), maxGracefulShutdownTime)
 	defer cancel()
 
-	if err := srv.ShutDown(ctx); err != nil {
+	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("graceful shutdown failed: %v", err)
 		return
 	}
