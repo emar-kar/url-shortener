@@ -11,16 +11,17 @@ import (
 	"syscall"
 	"time"
 
+	"gopkg.in/natefinch/lumberjack.v2"
+
 	"github.com/emar-kar/urlshortener/cmd/server"
 	"github.com/emar-kar/urlshortener/internal/redis"
 	"github.com/emar-kar/urlshortener/pkg/handler"
 	"github.com/emar-kar/urlshortener/pkg/service"
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
 	log.SetOutput(&lumberjack.Logger{
-		Filename:   "../log/report.log",
+		Filename:   "logs/report.log",
 		MaxBackups: 2,
 		MaxAge:     1, //days
 	})
@@ -42,9 +43,8 @@ func main() {
 
 	go func() {
 		err := srv.Run(
-			"localhost",
 			"8080",
-			handlers.InitRoutes(""),
+			handlers.InitRoutes("release"),
 		)
 		if errors.Is(err, http.ErrServerClosed) {
 			log.Println("server closed")

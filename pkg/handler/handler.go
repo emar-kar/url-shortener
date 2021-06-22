@@ -8,8 +8,6 @@ import (
 	"github.com/emar-kar/urlshortener/pkg/service"
 )
 
-// TODO: add custom logger
-
 type Handler struct {
 	services *service.Service
 }
@@ -45,11 +43,11 @@ func (h *Handler) InitRoutes(ginMode string) *gin.Engine {
 	router.GET("/statistics", h.statisticsHandler)
 	router.POST("/generate", h.generateHandler)
 
-	// appApi := router.Group("api")
-	// {
-	// 	appApi.GET("/statistics", api.GetStatistics)
-	// 	appApi.POST("/generate", api.Generate)
-	// }
+	appAPI := router.Group("api")
+	{
+		appAPI.POST("/generate", h.generate)
+		appAPI.GET("/statistics", h.getStatistics)
+	}
 
 	return router
 }
