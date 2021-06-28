@@ -1,5 +1,6 @@
 module github.com/emar-kar/urlshortener
 
+// +heroku goVersion go1.16 install ./cmd/main.go ./bin/url-shortener
 go 1.16
 
 require (
