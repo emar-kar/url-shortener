@@ -11,8 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"gopkg.in/natefinch/lumberjack.v2"
-
 	"github.com/emar-kar/urlshortener/pkg/database"
 	"github.com/emar-kar/urlshortener/pkg/handler"
 	"github.com/emar-kar/urlshortener/pkg/service"
@@ -31,11 +29,11 @@ func main() {
 	}
 
 	// Set log rotation and redirect log messages to file.
-	log.SetOutput(&lumberjack.Logger{
-		Filename:   "./logs/report.log",
-		MaxBackups: 2,
-		MaxAge:     1, //days
-	})
+	// log.SetOutput(&lumberjack.Logger{
+	// 	Filename:   "./logs/report.log",
+	// 	MaxBackups: 2,
+	// 	MaxAge:     1, //days
+	// })
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
