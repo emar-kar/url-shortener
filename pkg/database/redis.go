@@ -21,9 +21,9 @@ type DB struct {
 }
 
 // NewDB connects to Redis and returns DB structure.
-func NewDB() *DB {
+func NewDB(redisURL string) *DB {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     redisURL,
 		Password: "",
 		DB:       0,
 	})

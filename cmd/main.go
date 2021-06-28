@@ -25,6 +25,11 @@ func main() {
 		log.Fatal("$PORT must be set")
 	}
 
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL == "" {
+		log.Fatal("$REDIS_URL must be set")
+	}
+
 	// Set log rotation and redirect log messages to file.
 	log.SetOutput(&lumberjack.Logger{
 		Filename:   "./logs/report.log",
@@ -36,7 +41,7 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer close(done)
 
-	rdb := database.NewDB()
+	rdb := database.NewDB(redisURL)
 	if _, err := rdb.Client.Ping(context.Background()).Result(); err != nil {
 		log.Fatalf("cannot logging to redis: %s", err)
 	}
