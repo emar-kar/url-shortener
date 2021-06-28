@@ -10,11 +10,14 @@ import (
 	"github.com/emar-kar/urlshortener"
 )
 
+// GenRequest represents structure of the API request json object for link generation.
 type GenRequest struct {
 	Link    string `json:"link"`
 	ExpTime string `json:"expiration_time"`
 }
 
+// Time converts expiration time from the json request
+// to golang time.Duration.
 func (gr *GenRequest) Time() (time.Duration, error) {
 	if gr.ExpTime == "" {
 		duration, err := time.ParseDuration("24h")
@@ -30,32 +33,34 @@ func (gr *GenRequest) Time() (time.Duration, error) {
 	return time.Until(parsedTime), nil
 }
 
-func (h *Handler) generate(c *gin.Context) {
+// generateLink wraps API request handler.
+// Generates short URL and returns it as a link json object.
+func (h *Handler) generateLink(c *gin.Context) {
 	var genRequest GenRequest
 	if err := c.BindJSON(&genRequest); err != nil {
-		errorResponse(c, http.StatusBadRequest, err)
+		ErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
 	if genRequest.Link == "" {
-		errorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
+		ErrorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
 		return
 	}
 
 	shortURL, err := h.services.GenerateShortURL(c.Request.Host)
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	dur, err := genRequest.Time()
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	if dur < 0 {
-		errorResponse(c, http.StatusBadRequest, errors.New("expiration time is in the past"))
+		ErrorResponse(c, http.StatusBadRequest, errors.New("expiration time is in the past"))
 		return
 	}
 
@@ -65,8 +70,8 @@ func (h *Handler) generate(c *gin.Context) {
 		Expiration: dur,
 	}
 
-	if err := h.services.Set(link); err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+	if err := h.services.SetLink(link); err != nil {
+		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 

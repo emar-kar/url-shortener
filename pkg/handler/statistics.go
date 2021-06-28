@@ -2,32 +2,32 @@ package handler
 
 import (
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
+// StatRequest represents structure of the API request json object for link statistics.
 type StatRequest struct {
 	Link string `json:"link"`
 }
 
+// getStatistics retrieves link data from the database and sends it back as a link json object.
 func (h *Handler) getStatistics(c *gin.Context) {
-	log.Println(c.Request)
 	var statRequest StatRequest
 	if err := c.BindJSON(&statRequest); err != nil {
-		errorResponse(c, http.StatusBadRequest, err)
+		ErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
 	if statRequest.Link == "" {
-		errorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
+		ErrorResponse(c, http.StatusBadRequest, errors.New("url is empty"))
 		return
 	}
 
-	data, err := h.services.Get(statRequest.Link)
+	data, err := h.services.GetLink(statRequest.Link)
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 

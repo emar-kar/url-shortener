@@ -6,26 +6,33 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/emar-kar/urlshortener"
 	"github.com/gin-gonic/gin"
+
+	"github.com/emar-kar/urlshortener"
 )
 
-const (
-	TimeLayout = "2006-01-02"
-)
+// TimeLayout represents date template.
+const TimeLayout = "2006-01-02"
 
+// mainHandler wraps index page.
 func (h *Handler) mainHandler(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"title": "Main",
 	})
 }
 
+// notFound wraps 404 error page.
 func (h *Handler) notFound(c *gin.Context) {
 	c.HTML(http.StatusNotFound, "404.html", gin.H{
 		"title": "404 error",
 	})
 }
 
+// generateHandler wraps generator page. It handles user's request
+// performs backend actions:
+// 	- generate short url;
+// 	- add information to the database;
+//  - forms output page.
 func (h *Handler) generateHandler(c *gin.Context) {
 	url := c.PostForm("userLink")
 	if url == "" {
@@ -80,7 +87,7 @@ func (h *Handler) generateHandler(c *gin.Context) {
 
 	link := &urlshortener.Link{FullForm: url, ShortForm: shortURL, Expiration: dur}
 
-	if err := h.services.Set(link); err != nil {
+	if err := h.services.SetLink(link); err != nil {
 		log.Println(err)
 		c.HTML(http.StatusInternalServerError, "500.html", gin.H{
 			"title": "500 error",
@@ -96,6 +103,8 @@ func (h *Handler) generateHandler(c *gin.Context) {
 	})
 }
 
+// statisticsHandler wraps statistics page. It retrieves data from the database
+// and forms output.
 func (h *Handler) statisticsHandler(c *gin.Context) {
 	url := c.Request.FormValue("userLink")
 	if url == "" {
@@ -105,7 +114,7 @@ func (h *Handler) statisticsHandler(c *gin.Context) {
 		})
 		return
 	}
-	data, err := h.services.Get(url)
+	data, err := h.services.GetLink(url)
 	if err != nil {
 		log.Println(err)
 		h.notFound(c)
@@ -120,9 +129,10 @@ func (h *Handler) statisticsHandler(c *gin.Context) {
 	})
 }
 
+// redirectHandler performs redirect to the original link with the short one.
 func (h *Handler) redirectHandler(c *gin.Context) {
 	url := fmt.Sprint(c.Request.Host + c.Request.URL.Path)
-	data, err := h.services.Get(url)
+	data, err := h.services.GetLink(url)
 	if err != nil {
 		log.Println(err)
 		h.notFound(c)

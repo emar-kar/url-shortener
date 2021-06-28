@@ -1,4 +1,4 @@
-package redis
+package database
 
 import (
 	"context"
@@ -15,10 +15,12 @@ import (
 // url:short
 // url:full
 
+// DB structure represents a client to communicate with Redis.
 type DB struct {
 	Client *redis.Client
 }
 
+// NewDB connects to Redis and returns DB structure.
 func NewDB() *DB {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
@@ -29,7 +31,8 @@ func NewDB() *DB {
 	return &DB{Client: rdb}
 }
 
-func (db *DB) Get(shortURL string) (*urlshortener.Link, error) {
+// GetLink gets link information from the database. Returns link object.
+func (db *DB) GetLink(shortURL string) (*urlshortener.Link, error) {
 	link := &urlshortener.Link{ShortForm: shortURL}
 
 	ctx := context.Background()
@@ -54,40 +57,49 @@ func (db *DB) Get(shortURL string) (*urlshortener.Link, error) {
 	return link, nil
 }
 
-func (db *DB) Set(link *urlshortener.Link) error {
+// SetLink adds link information into the database.
+// Creates two entries:
+// 	key: short link - value: full link
+//  key: full link  - value: amount of redirects
+func (db *DB) SetLink(link *urlshortener.Link) error {
 	ctx := context.Background()
-	if err := db.Client.Set(ctx, link.ShortForm+":short", link.FullForm+":full", link.Expiration).Err(); err != nil {
+	if err := db.Client.Set(
+		ctx,
+		link.ShortForm+":short",
+		link.FullForm+":full",
+		link.Expiration,
+	).Err(); err != nil {
 		return err
 	}
 
-	if err := db.Client.Set(ctx, link.FullForm+":full", 0, link.Expiration).Err(); err != nil {
+	if err := db.Client.Set(
+		ctx, link.FullForm+":full",
+		0,
+		link.Expiration,
+	).Err(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (db *DB) Exist(link string) bool {
-	if _, err := db.Client.Get(context.Background(), link+":short").Result(); errors.Is(err, redis.Nil) {
+// LinkExists checks if short link is already exists in the database.
+func (db *DB) LinkExists(link string) bool {
+	if _, err := db.Client.Get(
+		context.Background(),
+		link+":short",
+	).Result(); errors.Is(err, redis.Nil) {
 		return false
 	}
 	return true
 }
 
+// Redirect increments if user has used the short link.
 func (db *DB) Redirect(link string) error {
-	ctx := context.Background()
-	red, err := db.Client.Get(ctx, link+":full").Uint64()
-	if err != nil {
-		return err
-	}
-
-	exp, err := db.Client.TTL(ctx, link+":full").Result()
-	if err != nil {
-		return err
-	}
-
-	red++
-	if err := db.Client.Set(ctx, link+":full", red, exp).Err(); err != nil {
+	if _, err := db.Client.Incr(
+		context.Background(),
+		link+":full",
+	).Result(); err != nil {
 		return err
 	}
 
