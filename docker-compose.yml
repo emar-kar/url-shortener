@@ -4,6 +4,9 @@ services:
         image: redis
     url-shortener:
         image: url-shortener:latest
+        environment: 
+            - PORT=8080
+            - REDIS_URL=redis://redis:6379
         depends_on:
             - redis
         ports:
