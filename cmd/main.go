@@ -28,18 +28,10 @@ func main() {
 		log.Fatal("$REDIS_URL must be set")
 	}
 
-	// Set log rotation and redirect log messages to file.
-	// log.SetOutput(&lumberjack.Logger{
-	// 	Filename:   "./logs/report.log",
-	// 	MaxBackups: 2,
-	// 	MaxAge:     1, //days
-	// })
-
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	defer close(done)
-
-	rdb := database.NewDB(redisURL)
+	rdb, err := database.NewDB(redisURL)
+	if err != nil {
+		log.Fatalf("cannot create redis client: %s", err)
+	}
 	if _, err := rdb.Client.Ping(context.Background()).Result(); err != nil {
 		log.Fatalf("cannot logging to redis: %s", err)
 	}
@@ -54,6 +46,10 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	defer close(done)
 
 	go func() {
 		log.Println("server starting")
