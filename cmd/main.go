@@ -19,6 +19,12 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
+
 	// Set log rotation and redirect log messages to file.
 	log.SetOutput(&lumberjack.Logger{
 		Filename:   "./logs/report.log",
@@ -40,7 +46,7 @@ func main() {
 	handlers := handler.NewHandler(services)
 
 	srv := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":" + port,
 		Handler:      handlers.InitRoutes("release"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
