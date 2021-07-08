@@ -11,26 +11,27 @@ import (
 	"syscall"
 	"time"
 
-	"gopkg.in/natefinch/lumberjack.v2"
-
 	"github.com/emar-kar/urlshortener/pkg/database"
 	"github.com/emar-kar/urlshortener/pkg/handler"
 	"github.com/emar-kar/urlshortener/pkg/service"
 )
 
 func main() {
-	// Set log rotation and redirect log messages to file.
-	log.SetOutput(&lumberjack.Logger{
-		Filename:   "./logs/report.log",
-		MaxBackups: 2,
-		MaxAge:     1, //days
-	})
+	port := os.Getenv("PORT")
 
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	defer close(done)
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 
-	rdb := database.NewDB()
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL == "" {
+		log.Fatal("$REDIS_URL must be set")
+	}
+
+	rdb, err := database.NewDB(redisURL)
+	if err != nil {
+		log.Fatalf("cannot create redis client: %s", err)
+	}
 	if _, err := rdb.Client.Ping(context.Background()).Result(); err != nil {
 		log.Fatalf("cannot logging to redis: %s", err)
 	}
@@ -40,11 +41,15 @@ func main() {
 	handlers := handler.NewHandler(services)
 
 	srv := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":" + port,
 		Handler:      handlers.InitRoutes("release"),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	defer close(done)
 
 	go func() {
 		log.Println("server starting")

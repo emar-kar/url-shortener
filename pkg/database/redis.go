@@ -21,14 +21,14 @@ type DB struct {
 }
 
 // NewDB connects to Redis and returns DB structure.
-func NewDB() *DB {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
-		Password: "",
-		DB:       0,
-	})
+func NewDB(redisURL string) (*DB, error) {
+	opt, err := redis.ParseURL(redisURL)
+	if err != nil {
+		return nil, err
+	}
+	rdb := redis.NewClient(opt)
 
-	return &DB{Client: rdb}
+	return &DB{Client: rdb}, nil
 }
 
 // GetLink gets link information from the database. Returns link object.
